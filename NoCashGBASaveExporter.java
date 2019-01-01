@@ -20,7 +20,7 @@ public class NoCashGBASaveExporter {
 			String outputSizeOption;
 			if (args.length == 0) {
 				System.out.println("Select this save file's output size:");
-				System.out.println("1) 128 kb (e-Reader, Pokémon Ruby/Sapphire/Emerald/FireRed/LeafGreen, " +
+				System.out.println("1) 128 kb (e-Reader, Pokemon Ruby/Sapphire/Emerald/FireRed/LeafGreen, " +
 						"Super Mario Advance 4)");
 				System.out.println("2) 64 kb (Kirby & the Amazing Mirror, Mario vs Donkey Kong, " +
 						"Mega Man Zero 3, Metroid Fusion/Zero Mission, Mother 3, Sonic Advance 1-3)");
