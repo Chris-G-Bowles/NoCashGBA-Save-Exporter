@@ -22,7 +22,7 @@ public class NoCashGBASaveExporter {
 		} else {
 			inputSaveFileLocation = args[0];
 		}
-		String outputSizeOption;
+		String outputSizeString;
 		if (args.length == 0) {
 			System.out.println("Select this save file's output size:");
 			System.out.println("1) 128 kb (e-Reader, Pokemon Ruby/Sapphire/Emerald/FireRed/LeafGreen, " +
@@ -38,9 +38,9 @@ public class NoCashGBASaveExporter {
 			System.out.println("8) 1 kb (???)");
 			System.out.println("9) 512 b (Super Mario Advance 1, Yoshi Topsy Turvy)");
 			System.out.print("Output size option: ");
-			outputSizeOption = input.nextLine();
+			outputSizeString = input.nextLine();
 		} else {
-			outputSizeOption = args[1];
+			outputSizeString = args[1];
 		}
 		String outputSaveFileLocation;
 		if (args.length == 0) {
@@ -67,9 +67,9 @@ public class NoCashGBASaveExporter {
 			inputStream.close();
 			int inputSaveFileSize = 139632;
 			if (inputSaveFile.size() == inputSaveFileSize) {
-				if (isValidInteger(outputSizeOption) && Integer.parseInt(outputSizeOption) >= 1 &&
-						Integer.parseInt(outputSizeOption) <= 9) {
-					int outputSaveFileSize = (int)Math.pow(2, 18 - Integer.parseInt(outputSizeOption));
+				if (isValidInteger(outputSizeString) && Integer.parseInt(outputSizeString) >= 1 &&
+						Integer.parseInt(outputSizeString) <= 9) {
+					int outputSaveFileSize = (int)Math.pow(2, 18 - Integer.parseInt(outputSizeString));
 					try {
 						FileOutputStream outputStream = new FileOutputStream(outputSaveFileLocation);
 						int outputOffset = 76;
