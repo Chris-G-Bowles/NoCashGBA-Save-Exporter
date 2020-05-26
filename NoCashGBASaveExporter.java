@@ -1,5 +1,6 @@
 //No$GBA Save Exporter
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -22,6 +23,12 @@ public class NoCashGBASaveExporter {
 		} else {
 			inputSaveFileLocation = args[0];
 		}
+		FileInputStream inputStream = null;
+		try {
+			inputStream = new FileInputStream(inputSaveFileLocation);
+		} catch (Exception e) {
+			error(inputSaveFileLocation + " is not a valid file.");
+		}
 		String outputSizeString;
 		if (args.length == 0) {
 			System.out.println("Select this save file's output size:");
@@ -42,6 +49,16 @@ public class NoCashGBASaveExporter {
 		} else {
 			outputSizeString = args[1];
 		}
+		Scanner lineInput = new Scanner(outputSizeString);
+		if (!lineInput.hasNextInt()) {
+			error("Invalid output size input.");
+		}
+		int outputSizeOption = lineInput.nextInt();
+		if (outputSizeOption < 1 || outputSizeOption > 9) {
+			error("Invalid output size option.");
+		}
+		lineInput.close();
+		int outputSaveFileSize = (int)Math.pow(2, 18 - outputSizeOption);
 		String outputSaveFileLocation;
 		if (args.length == 0) {
 			System.out.print("Enter the output save file's location: ");
@@ -49,48 +66,52 @@ public class NoCashGBASaveExporter {
 		} else {
 			outputSaveFileLocation = args[2];
 		}
-		input.close();
-		try {
-			FileInputStream inputStream = new FileInputStream(inputSaveFileLocation);
-			int token;
-			ArrayList<Integer> inputSaveFile = new ArrayList<>();
-			do {
-				try {
-					token = inputStream.read();
-				} catch (Exception e) {
-					token = -1;
-				}
-				if (token >= 0 && token <= 255) {
-					inputSaveFile.add(token);
-				}
-			} while (token >= 0 && token <= 255);
-			inputStream.close();
-			int inputSaveFileSize = 139632;
-			if (inputSaveFile.size() == inputSaveFileSize) {
-				if (isValidInteger(outputSizeString) && Integer.parseInt(outputSizeString) >= 1 &&
-						Integer.parseInt(outputSizeString) <= 9) {
-					int outputSaveFileSize = (int)Math.pow(2, 18 - Integer.parseInt(outputSizeString));
-					try {
-						FileOutputStream outputStream = new FileOutputStream(outputSaveFileLocation);
-						int outputOffset = 76;
-						for (int i = 0; i < outputSaveFileSize; i++) {
-							outputStream.write(inputSaveFile.get(i + outputOffset));
-						}
-						outputStream.close();
-						System.out.println("Success: " + outputSaveFileLocation + " was created!");
-					} catch (Exception e) {
-						System.out.println("Error: Could not create " + outputSaveFileLocation + ".");
-					}
-				} else {
-					System.out.println("Error: Invalid output size option.");
-				}
-			} else {
-				System.out.println("Error: " + inputSaveFileLocation + " is not " + inputSaveFileSize +
-						" bytes in size.");
-			}
-		} catch (Exception e) {
-			System.out.println("Error: " + inputSaveFileLocation + " not found.");
+		File outputSaveFileDirectory = new File(outputSaveFileLocation).getParentFile();
+		if (outputSaveFileDirectory != null && !outputSaveFileDirectory.exists() && outputSaveFileDirectory.mkdirs()) {
+			System.out.println(outputSaveFileDirectory + " was created.");
 		}
+		FileOutputStream outputStream = null;
+		try {
+			outputStream = new FileOutputStream(outputSaveFileLocation);
+		} catch (Exception e) {
+			error("Unable to create " + outputSaveFileLocation + ".");
+		}
+		input.close();
+		int token;
+		ArrayList<Integer> inputSaveFile = new ArrayList<>();
+		do {
+			try {
+				token = inputStream.read();
+			} catch (Exception e) {
+				token = -1;
+			}
+			if (token >= 0 && token <= 255) {
+				inputSaveFile.add(token);
+			}
+		} while (token >= 0 && token <= 255);
+		try {
+			inputStream.close();
+		} catch (Exception e) {
+			error("Unable to close inputStream.");
+		}
+		int inputSaveFileSize = 139632;
+		if (inputSaveFile.size() != inputSaveFileSize) {
+			error(inputSaveFileLocation + " is not " + inputSaveFileSize + " bytes in size.");
+		}
+		int outputOffset = 76;
+		for (int i = 0; i < outputSaveFileSize; i++) {
+			try {
+				outputStream.write(inputSaveFile.get(i + outputOffset));
+			} catch (Exception e) {
+				error("Unable to write the input save file to " + outputSaveFileLocation + ".");
+			}
+		}
+		try {
+			outputStream.close();
+		} catch (Exception e) {
+			error("Unable to close outputStream.");
+		}
+		System.out.println("Success: " + outputSaveFileLocation + " was created!");
 	}
 	
 	private static void error(String message) {
